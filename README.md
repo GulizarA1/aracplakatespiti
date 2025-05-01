@@ -1,66 +1,91 @@
-# ARAÇ PLAKA TESPİT PROGRAMI
-Proje Başlığı:
-Araç Kapısı Plaka Tespit ve Kontrol Sistemi
+# 🚛 Araç Kapısı Plaka Tespit ve Kontrol Sistemi
 
-Proje Amacı:
-Bu projenin amacı, bir tesisin araç giriş noktasına yaklaşan araçların türünü (kamyon/tır veya diğer araçlar) ve plakalarını tespit ederek, duruma uygun şekilde fiziksel tepki verilmesini sağlamaktır. Geliştirilecek sistem, kamyon veya tır tespit edilip, plakası daha önceden sisteme kayıtlıysa Arduino üzerinden kapıyı açacaktır. Kamyon veya tır olmayan araçlar (örneğin otomobil) yaklaştığında ise sistem bir buzzer ile uyarı verecektir.
+Bu proje, araçların tesis girişine yaklaştığında türünü (kamyon/tır veya diğer) ve plakasını algılayarak uygun fiziksel aksiyonları (kapı açma veya buzzer ile uyarı) gerçekleştiren bir akıllı güvenlik sistemidir. Uygulama, Flask tabanlı bir web arayüzüyle mobil veya masaüstü cihazlarda çalışacak şekilde tasarlanmıştır.
 
-Teknoloji ve Platformlar:
-Arayüz ve Uygulama: Flask tabanlı web uygulaması olarak geliştirilecektir. Uygulama, mobil cihazlarda çalışacak şekilde tasarlanacak olup, cep telefonlarının kamerası webcam olarak kullanılacaktır. Uygulama mobil çalıştırılamayan durumlarda, en azından bilgisayarda çalışır hale getirilmelidir.
+## 🔧 Proje Özeti
 
-Donanım: Arduino (kapı kontrolü ve buzzer uyarısı için kullanılacak)
+- Kamyon/tır algılandığında ve plakası veritabanında varsa: **Arduino ile kapı açılır.**
+- Kamyon/tır olmayan araç algılandığında: **Arduino üzerindeki buzzer çalışır.**
+- Plaka tanıma işlemi OCR (Optical Character Recognition) ile gerçekleştirilir.
+- Arayüzde canlı kamera görüntüsü, uyarılar ve plaka yönetimi ekranları bulunmaktadır.
 
-Görüntü İşleme ve Derin Öğrenme: Araç ve plaka tespiti için YOLOv8 gibi bir derin öğrenme tabanlı nesne tanıma modeli kullanılacaktır.
+## 🚀 Teknolojiler
 
-OCR: Plaka üzerindeki yazıların okunması için EasyOCR veya Tesseract kütüphanelerinden biri tercih edilecektir.
+- **Flask** – Web uygulaması geliştirme
+- **OpenCV** – Görüntü işleme
+- **YOLOv8 / CNN** – Nesne tespiti (araç ve plaka)
+- **EasyOCR / Tesseract** – Plaka yazısı okuma
+- **Arduino** – Fiziksel donanım kontrolü (kapı ve buzzer)
+- **HTML/CSS + JavaScript** – Arayüz
+- **SQLite / JSON** – Basit plaka veritabanı
 
-Sistem Çalışma Prensibi:
-Kamera görüntüsünden araç algılanır.
+## 📁 Proje Yapısı
 
-Araç tipi sınıflandırılır (Kamyon/Tır mı, değil mi).
+📦 **vehicle-gate-detection**  
+├── `app.py`  # Flask uygulaması  
+├── `templates/`  # HTML dosyaları  
+│   ├── `index.html`  # Ana arayüz (kamera, uyarılar)  
+│   └── `register_plate.html`  # Plaka ekleme sayfası  
+├── `static/`  # CSS / JS dosyaları  
+├── `model/`  # Eğitilmiş YOLO veya CNN modeli  
+├── `utils/`  # Yardımcı fonksiyonlar  
+│   ├── `detection.py`  # Araç ve plaka tespiti  
+│   ├── `ocr.py`  # OCR işlemleri  
+│   └── `arduino_control.py`  # Arduino ile iletişim  
+├── `dataset/`  # Görüntü veri seti (Drive linki)  
+├── `README.md`  
+└── `requirements.txt`  # Gerekli kütüphaneler
 
-Araç plakası okunur (OCR).
+## 📸 Veri Seti
 
-Plaka, sistemde önceden kayıtlı plakalarla karşılaştırılır.
+- **Kamyon/Tır Görselleri:** 1000 adet  
+- **Diğer Araç Görselleri:** 1000 adet  
+- **Etiketleme:** Bounding box ile hem araç hem plaka bölgeleri Roboflow üzerinden etiketlenmiştir.  
+- **Veri Erişimi:** [Google Drive – ZIP Dosyası](#) ← (Bağlantıyı buraya ekleyin)
 
-Karara göre:
+## 🧠 Model Eğitimi
 
-Kamyon/Tır + Kayıtlı plaka: Arduino ile kapı açılır.
+### Katmanlar:
 
-Farklı araç türü veya kayıtsız plaka: Arduino üzerindeki buzzer aktif hale getirilerek uyarı verilir.
+- `Convolution Layer`: Görüntüden öznitelik çıkarımı
+- `MaxPooling`: Boyut küçültme ve gürültü azaltma
+- `Fully Connected (Dense) Layer`: Karar mekanizması
+- `ReLU`: Aktivasyon fonksiyonu
+- `Sigmoid/Softmax`: Çıktı katmanı – sınıflandırma
 
-Arayüz Özellikleri:
-Canlı Görüntü Sayfası:
+### Öğrenme Süreci:
 
-Kamera görüntüsü gerçek zamanlı olarak gösterilecektir.
+1. **Forward Propagation:** Girdi verisi katmanlardan geçerek çıktı üretir.
+2. **Loss Calculation:** Üretilen tahmin ile gerçek değer arasındaki hata hesaplanır.
+3. **Backpropagation:** Hata değeri geriye yayılır, her katmandaki ağırlıklar güncellenir.
+4. **Optimization (Gradient Descent):** Ağırlıklar, hatayı minimize edecek şekilde yeniden ayarlanır.
 
-Kamyon veya tır algılandığında ekranda “Kamyon/Tır Tespit Edildi” uyarısı verilecektir.
+Model, `YOLOv8` ya da özelleştirilmiş `CNN` yapısı ile Google Colab üzerinde eğitilecektir.
 
-Plaka tanımlandıktan sonra sistemde kayıtlıysa “Araç içeri alınıyor” mesajı gösterilecektir.
+## 🖥️ Arayüz Özellikleri
 
-Plaka Yönetimi Sayfası:
+- **Kamera Görüntüsü:** Canlı olarak kameradan alınır.
+- **Uyarılar:** Araç tipi ve plaka durumu ekranda gösterilir.
+- **Plaka Kayıt Sayfası:** Yeni plakalar sisteme kaydedilebilir.
 
-Kullanıcılar, arayüz üzerinden sisteme yeni plakalar ekleyebilecek veya mevcut plakaları düzenleyebilecektir.
+## 🔬 Test Süreci
 
-Veri Seti:
-Kamyon/tır ve diğer araçlar olmak üzere iki farklı araç türüne ait 1000’er adet görüntü toplanacaktır.
+- Sahadan çekilen 3 dakikalık gerçek video ile test yapılacaktır.
+- Kamyon tespiti + kayıtlı plaka → Arduino kapıyı açar.
+- Otomobil tespiti → Buzzer sesli uyarı verir.
 
-Her bir görselde hem araçlar hem de plakalar bounding box ile etiketlenecektir.
+## ⚙️ Arduino Entegrasyonu
 
-Etiketleme işlemi Roboflow gibi bir platform kullanılarak yapılacaktır.
+- **Serial iletişim** (PySerial)
+- **Kapı açma komutu** → `arduino.write(b'OPEN')`
+- **Buzzer uyarı komutu** → `arduino.write(b'BUZZ')`
 
-Test Süreci:
-Uygulama, sahada çekilen yaklaşık 3 dakikalık bir video ile test edilecektir.
+## 📝 Kurulum
 
-Videoda gerçek bir kamyonun görüntüsü ve plakası sistem tarafından algılanacak, plaka eşleşmesi doğrultusunda kapı açılacaktır.
+Projeyi yerel ortamınızda çalıştırmak için aşağıdaki adımları takip edebilirsiniz:
 
-Otomobil gibi farklı araçlar gösterildiğinde buzzer ile sesli uyarı verilecektir.
-
-Teslimat ve Dokümantasyon:
-Kodlar: GitHub üzerinde açık kaynak olarak paylaşılacaktır.
-
-Veri Seti: Google Drive üzerinden ziplenmiş olarak paylaşılacaktır.
-
-Raporlama: Proje raporu, model eğitimi, test sonuçları, sistem diyagramları ve kullanılan algoritmalar detaylı olarak içerecektir.
-
-
+```bash
+git clone https://github.com/kullaniciadi/vehicle-gate-detection.git
+cd vehicle-gate-detection
+pip install -r requirements.txt
+python app.py
